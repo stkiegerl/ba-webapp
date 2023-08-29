@@ -7,8 +7,7 @@ COPY src/ ./src/
 
 
 # Set Chainguard Nginx as the base image
-#FROM cgr.dev/chainguard/nginx:latest
-FROM nginx:latest
+FROM cgr.dev/chainguard/nginx:latest
 
 # Set the user to 65532
 USER 65532
