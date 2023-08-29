@@ -1,9 +1,16 @@
 name: Docker Image CI
+#on:
+#  workflow_run:
+#    workflows: ["CodeQL"]
+#    types:
+#      - completed
 on:
-  workflow_run:
-    workflows: ["CodeQL"]
-    types:
-      - completed
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
 
 env:
   REGISTRY: ghcr.io
@@ -29,13 +36,14 @@ jobs:
         uses: docker/metadata-action@v2
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=schedule,pattern={{date 'YYYYMMDD-hhmmss'}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: |
-            type=semver,pattern={{version}}
-            type=schedule,pattern={{date 'YYYYMMDD-hhmmss'}}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
