@@ -5,12 +5,15 @@ name: Docker Image CI
 #    types:
 #      - completed
 on:
+  workflow_dispatch:
   push:
     branches:
-      - 'main'
+      - 'master'
+    tags:
+      - 'v*'
   pull_request:
     branches:
-      - 'main'
+      - 'master'
 
 env:
   REGISTRY: ghcr.io
@@ -24,21 +27,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v2
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v2
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=schedule,pattern={{date 'YYYYMMDD-hhmmss'}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
