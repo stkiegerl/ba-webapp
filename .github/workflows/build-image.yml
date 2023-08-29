@@ -1,11 +1,9 @@
 name: Docker Image CI
 on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - '.gitignore'
-      - '.gitignore/dependabot.yml'
+  workflow_run:
+    workflows: ["CodeQL"]
+    types:
+      - completed
 
 env:
   REGISTRY: ghcr.io
@@ -37,5 +35,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=schedule,pattern={{date 'YYYYMMDD-hhmmss'}}
           labels: ${{ steps.meta.outputs.labels }}
